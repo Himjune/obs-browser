@@ -40,6 +40,13 @@ struct AudioStream {
 };
 #endif
 
+enum class PresentationSource : int {
+	Google,
+	LocalSite,
+};
+inline constexpr PresentationSource DEFAULT_PRESENTATION_SOURCE =
+	PresentationSource::Google;
+
 enum class ControlLevel : int {
 	None,
 	ReadObs,

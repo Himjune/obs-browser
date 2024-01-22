@@ -41,9 +41,11 @@ class BrowserClient : public CefClient,
 	bool reroute_audio = true;
 	ControlLevel webpage_control_level = DEFAULT_CONTROL_LEVEL;
 
-	inline bool valid() const;
 
 	void UpdateExtraTexture();
+
+protected:
+	inline bool valid() const;
 
 public:
 	BrowserSource *bs;
@@ -184,4 +186,49 @@ public:
 			       int httpStatusCode) override;
 
 	IMPLEMENT_REFCOUNTING(BrowserClient);
+};
+
+class PresentationClient : public BrowserClient {
+	inline PresentationClient(BrowserSource *bs_, bool sharing_avail,
+			     bool reroute_audio_,
+			     ControlLevel webpage_control_level_)
+		: BrowserClient(bs_, sharing_avail,reroute_audio_, webpage_control_level_)
+	{
+	}
+
+	void onLoadEnd(CefRefPtr<CefBrowser>,
+				      CefRefPtr<CefFrame> frame, int)
+	{
+		if (!valid()) {
+			return;
+		}
+
+		char empty[] = "";
+		obs_key_event startPresentKE{4, empty, 4, 0, 116};
+
+		if (frame->IsMain()) {
+			bs->SendKeyClick(&startPresentKE, false);
+		}
+
+		if ((bs->apply_css_to_iframes || frame->IsMain()) &&
+		    bs->css.length()) {
+			std::string uriEncodedCSS =
+				CefURIEncode(bs->css, false).ToString();
+
+			std::string script;
+			script +=
+				"escapeHTMLPolicy = trustedTypes.createPolicy(\"forceInner\", {";
+			script += "createHTML: (to_escape) => to_escape";
+			script += "}); ";
+
+			script +=
+				"const obsCSS = document.createElement('style');";
+			script +=
+				"obsCSS.innerHTML = escapeHTMLPolicy.createHTML(decodeURIComponent(\"" +
+				uriEncodedCSS + "\"));";
+			script +=
+				"document.querySelector('head').appendChild(obsCSS);";
+			frame->ExecuteJavaScript(script, "", 0);
+		}
+	}
 };

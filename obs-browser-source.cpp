@@ -196,7 +196,7 @@ bool BrowserSource::CreateBrowser()
 #endif
 
 		CefRefPtr<BrowserClient> browserClient =
-			new BrowserClient(this, hwaccel && tex_sharing_avail,
+			new PresentationClient(this, hwaccel && tex_sharing_avail,
 					  reroute_audio, webpage_control_level);
 
 		CefWindowInfo windowInfo;
