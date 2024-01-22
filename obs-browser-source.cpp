@@ -514,6 +514,7 @@ void BrowserSource::Update(obs_data_t *settings)
 		int n_height;
 		bool n_fps_custom;
 		int n_fps;
+		bool n_apply_iframes;
 		bool n_shutdown;
 		bool n_restart;
 		bool n_reroute;
@@ -526,9 +527,11 @@ void BrowserSource::Update(obs_data_t *settings)
 		n_height = (int)obs_data_get_int(settings, "height");
 		n_fps_custom = obs_data_get_bool(settings, "fps_custom");
 		n_fps = (int)obs_data_get_int(settings, "fps");
+		n_apply_iframes = obs_data_get_bool(settings, "apply_css_to_iframes");
 		n_shutdown = obs_data_get_bool(settings, "shutdown");
 		n_restart = obs_data_get_bool(settings, "restart_when_active");
 		n_css = obs_data_get_string(settings, "css");
+
 		n_url = obs_data_get_string(settings,
 					    n_is_local ? "local_file" : "url");
 		n_reroute = obs_data_get_bool(settings, "reroute_audio");
@@ -576,7 +579,8 @@ void BrowserSource::Update(obs_data_t *settings)
 		}
 #endif
 
-		if (n_is_local == is_local && n_fps_custom == fps_custom &&
+		if (n_apply_iframes == apply_css_to_iframes &&
+		    n_is_local == is_local && n_fps_custom == fps_custom &&
 		    n_fps == fps && n_shutdown == shutdown_on_invisible &&
 		    n_restart == restart && n_css == css && n_url == url &&
 		    n_reroute == reroute_audio &&
@@ -613,6 +617,7 @@ void BrowserSource::Update(obs_data_t *settings)
 		webpage_control_level = n_webpage_control_level;
 		restart = n_restart;
 		css = n_css;
+		apply_css_to_iframes = n_apply_iframes;
 		url = n_url;
 
 		obs_source_set_audio_active(source, reroute_audio);

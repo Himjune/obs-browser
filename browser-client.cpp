@@ -655,16 +655,21 @@ void BrowserClient::OnLoadEnd(CefRefPtr<CefBrowser>, CefRefPtr<CefFrame> frame,
 		return;
 	}
 
-	if (frame->IsMain() && bs->css.length()) {
+	if ((bs->apply_css_to_iframes || frame->IsMain()) && bs->css.length()) {
 		std::string uriEncodedCSS =
 			CefURIEncode(bs->css, false).ToString();
 
 		std::string script;
-		script += "const obsCSS = document.createElement('style');";
-		script += "obsCSS.innerHTML = decodeURIComponent(\"" +
-			  uriEncodedCSS + "\");";
-		script += "document.querySelector('head').appendChild(obsCSS);";
+		script +=
+			"escapeHTMLPolicy = trustedTypes.createPolicy(\"forceInner\", {";
+		script += "createHTML: (to_escape) => to_escape";
+		script += "}); ";
 
+		script += "const obsCSS = document.createElement('style');";
+		script +=
+			"obsCSS.innerHTML = escapeHTMLPolicy.createHTML(decodeURIComponent(\"" +
+			uriEncodedCSS + "\"));";
+		script += "document.querySelector('head').appendChild(obsCSS);";
 		frame->ExecuteJavaScript(script, "", 0);
 	}
 }

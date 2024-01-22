@@ -126,6 +126,7 @@ static void browser_source_get_defaults(obs_data_t *settings)
 #else
 	obs_data_set_default_bool(settings, "fps_custom", true);
 #endif
+	obs_data_set_default_bool(settings, "apply_css_to_iframes", false);
 	obs_data_set_default_bool(settings, "shutdown", false);
 	obs_data_set_default_bool(settings, "restart_when_active", false);
 	obs_data_set_default_int(settings, "webpage_control_level",
@@ -204,6 +205,8 @@ static obs_properties_t *browser_source_get_properties(void *data)
 	obs_property_t *p = obs_properties_add_text(
 		props, "css", obs_module_text("CSS"), OBS_TEXT_MULTILINE);
 	obs_property_text_set_monospace(p, true);
+	obs_properties_add_bool(props, "apply_css_to_iframes",
+				obs_module_text("ApplyCSSToIFrames"));
 	obs_properties_add_bool(props, "shutdown",
 				obs_module_text("ShutdownSourceNotVisible"));
 	obs_properties_add_bool(props, "restart_when_active",
