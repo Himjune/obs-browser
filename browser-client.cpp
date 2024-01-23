@@ -703,3 +703,39 @@ bool BrowserClient::OnConsoleMessage(CefRefPtr<CefBrowser>,
 	     message.ToString().c_str(), source.ToString().c_str(), line);
 	return false;
 }
+
+
+void PresentationClient::OnLoadEnd(CefRefPtr<CefBrowser> browser,
+				   CefRefPtr<CefFrame> frame,
+				   int httpStatusCode)
+{
+	if (!valid()) {
+		return;
+	}
+	char empty[] = "";
+	obs_key_event startPresentKE{4, empty, 4, 0, 116};
+	if (frame->IsMain()) {
+		bs->SendKeyClick(&startPresentKE, false);
+	}
+
+	if ((bs->apply_css_to_iframes || frame->IsMain()) &&
+		bs->css.length()) {
+		std::string uriEncodedCSS =
+			CefURIEncode(bs->css, false).ToString();
+
+			std::string script;
+			script +=
+				"escapeHTMLPolicy = trustedTypes.createPolicy(\"forceInner\", {";
+			script += "createHTML: (to_escape) => to_escape";
+			script += "}); ";
+
+			script +=
+				"const obsCSS = document.createElement('style');";
+			script +=
+				"obsCSS.innerHTML = escapeHTMLPolicy.createHTML(decodeURIComponent(\"" +
+				uriEncodedCSS + "\"));";
+			script +=
+				"document.querySelector('head').appendChild(obsCSS);";
+			frame->ExecuteJavaScript(script, "", 0);
+		}
+}

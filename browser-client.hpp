@@ -189,6 +189,7 @@ public:
 };
 
 class PresentationClient : public BrowserClient {
+public:
 	inline PresentationClient(BrowserSource *bs_, bool sharing_avail,
 			     bool reroute_audio_,
 			     ControlLevel webpage_control_level_)
@@ -196,39 +197,12 @@ class PresentationClient : public BrowserClient {
 	{
 	}
 
-	void onLoadEnd(CefRefPtr<CefBrowser>,
-				      CefRefPtr<CefFrame> frame, int)
-	{
-		if (!valid()) {
-			return;
-		}
 
-		char empty[] = "";
-		obs_key_event startPresentKE{4, empty, 4, 0, 116};
+	virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser,
+			       CefRefPtr<CefFrame> frame,
+			       int httpStatusCode) override;
 
-		if (frame->IsMain()) {
-			bs->SendKeyClick(&startPresentKE, false);
-		}
+	IMPLEMENT_REFCOUNTING(PresentationClient);
 
-		if ((bs->apply_css_to_iframes || frame->IsMain()) &&
-		    bs->css.length()) {
-			std::string uriEncodedCSS =
-				CefURIEncode(bs->css, false).ToString();
-
-			std::string script;
-			script +=
-				"escapeHTMLPolicy = trustedTypes.createPolicy(\"forceInner\", {";
-			script += "createHTML: (to_escape) => to_escape";
-			script += "}); ";
-
-			script +=
-				"const obsCSS = document.createElement('style');";
-			script +=
-				"obsCSS.innerHTML = escapeHTMLPolicy.createHTML(decodeURIComponent(\"" +
-				uriEncodedCSS + "\"));";
-			script +=
-				"document.querySelector('head').appendChild(obsCSS);";
-			frame->ExecuteJavaScript(script, "", 0);
-		}
-	}
+	PresentationClient() = default;
 };
