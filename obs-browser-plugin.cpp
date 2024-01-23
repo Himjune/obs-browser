@@ -309,7 +309,7 @@ static obs_properties_t *presentation_source_get_properties(void *data)
 				obs_module_text("LocalFile"), OBS_PATH_FILE,
 				"*.*", path->array);
 
-	obs_property_t *presentationSource = obs_properties_add_list(
+	/*obs_property_t *presentationSource = obs_properties_add_list(
 		props, "presentation_source",
 		obs_module_text("PresentationSource"), OBS_COMBO_TYPE_LIST,
 		OBS_COMBO_FORMAT_INT);
@@ -321,7 +321,7 @@ static obs_properties_t *presentation_source_get_properties(void *data)
 	obs_property_list_add_int(
 		presentationSource,
 		obs_module_text("PresentationSource.Source.LocalSite"),
-		(int)ControlLevel::ReadObs);
+		(int)ControlLevel::ReadObs);*/
 
 	obs_properties_add_text(props, "url", obs_module_text("URL"),
 				OBS_TEXT_DEFAULT);
